@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useState } from "react"
 
-const Button = () => {
-	return (
-		<button>Button</button>
-	)
+type ButtonProps = {
+	add: React.Dispatch<React.SetStateAction<number>>
+}
+
+const Button = ({add}: ButtonProps) => {
+	return <button onClick={() => add((n) => n + 1)}>Add</button>
 }
 
 export default Button
