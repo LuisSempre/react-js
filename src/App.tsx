@@ -1,41 +1,26 @@
-import React from "react";
-import Input from "./Input";
-
-type Venda = {
-  id: string;
-  nome: string;
-  preco: number;
-  status: string;
-};
+import React from 'react';
+import videoSrc from '../video.mp4';
+import useLocalStorage from './useLocalStorage';
 
 function App() {
-  const [inicio, setInicio] = React.useState("");
-  const [final, setFinal] = React.useState("");
-  const [data, setData] = React.useState<null | Venda[]>(null);
+  const [volume, setVolume] = useLocalStorage('volume', '0');
+  const video = React.useRef<HTMLVideoElement>(null);
 
   React.useEffect(() => {
-    if (inicio !== "" && final !== "") {
-      fetch(`https://data.origamid.dev/vendas/?inicio=${inicio}&final=${final}`)
-        .then((r) => r.json())
-        .then((json) => setData(json as Venda[]))
-        .catch((error) => console.log(error));
-    }
-  }, [inicio, final]);
+    if (!video.current) return;
+    const n = Number(volume);
+    if (n >= 0 && n <= 1) video.current.volume = n;
+  }, [volume]);
 
   return (
     <div>
-      <div>
-        <Input label="Início" type="date" setState={setInicio} value={inicio} />
-        <Input label="Final" type="date" setState={setFinal} value={final} />
+      <div className="flex">
+        <button onClick={() => setVolume('0')}>0</button>
+        <button onClick={() => setVolume('0.5')}>50</button>
+        <button onClick={() => setVolume('1')}>100</button>
+        <button onClick={() => setVolume('2')}>200 (N)</button>
       </div>
-      <ul>
-        {data !== null &&
-          data.map((venda) => (
-            <li key={venda.id}>
-              {venda.nome}: {venda.status}
-            </li>
-          ))}
-      </ul>
+      <video controls ref={video} src={videoSrc}></video>
     </div>
   );
 }
