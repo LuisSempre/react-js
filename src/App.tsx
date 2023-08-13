@@ -1,27 +1,49 @@
 import React from 'react';
-import videoSrc from '../video.mp4';
-import useLocalStorage from './useLocalStorage';
+import useFetch from './useFetch';
+
+type Produto = {
+  id: string;
+  nome: string;
+  descricao: string;
+  quantidade: number;
+  preco: number;
+  internacional: boolean;
+};
+
+const PRODUTOS_URL = 'https://data.origamid.dev/produtos';
 
 function App() {
-  const [volume, setVolume] = useLocalStorage('volume', '0');
-  const video = React.useRef<HTMLVideoElement>(null);
-
-  React.useEffect(() => {
-    if (!video.current) return;
-    const n = Number(volume);
-    if (n >= 0 && n <= 1) video.current.volume = n;
-  }, [volume]);
+  const [id, setId] = React.useState('p001');
+  const produto = useFetch<Produto>(`${PRODUTOS_URL}/${id}/`);
+  const produtos = useFetch<Produto[]>(PRODUTOS_URL);
 
   return (
-    <div>
-      <div className="flex">
-        <button onClick={() => setVolume('0')}>0</button>
-        <button onClick={() => setVolume('0.5')}>50</button>
-        <button onClick={() => setVolume('1')}>100</button>
-        <button onClick={() => setVolume('2')}>200 (N)</button>
+    <section className="flex">
+      <div>
+        {produtos.data &&
+          produtos.data.map((produto) => (
+            <button
+              style={{ fontSize: '1rem' }}
+              key={produto.id}
+              onClick={() => setId(produto.id)}
+            >
+              {produto.id}
+            </button>
+          ))}
       </div>
-      <video controls ref={video} src={videoSrc}></video>
-    </div>
+      <div>
+        {produto.loading && <div>Carregando...</div>}
+        {produto.data && (
+          <ul>
+            <li>ID: {produto.data.id}</li>
+            <li>Nome: {produto.data.nome}</li>
+            <li>Quantidade: {produto.data.quantidade}</li>
+            <li>{produto.data.descricao}</li>
+            {produto.data.internacional ? <li>Internacional</li> : ''}
+          </ul>
+        )}
+      </div>
+    </section>
   );
 }
 
